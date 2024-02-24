@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banner Voting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0 10px 10px 10px;
+            background-color: #E3E0D1;
+        }
+        #image-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .image-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+            cursor: move;
+            background-color: #EDEBDF;
+        }
+        .image-item img {
+            max-width: 100%;
+            height: auto;
+            margin-right: 10px;
+        }
+        textarea, input {
+            background-color: #EDEBDF;
+        }
+    </style>
+</head>
+<body>
+    <h1>Banner Voting</h1>
+    <p>Enter a list of image URLs and titles below (one per line), separated by a comma:</p>
+    <textarea id="image-input" rows="6" cols="50"></textarea><br>
+    <button onclick="loadImages()">Generate Image List</button><br><br>
+    <p>Drag and drop images to reorder them. An ordered list will be outputted at the bottom of the page.</p>
+    <ul id="image-list"></ul>
+	<textarea id="image-text" rows="6" style="width: 100%;"></textarea>
+
+    <script>
+        const imageList = document.getElementById('image-list');
+        const imageInput = document.getElementById('image-input');
+		const imageText = document.getElementById('image-text');
+        let images = [];
+		
+		function loadImages() {
+			const inputText = imageInput.value;
+            const lines = inputText.split('\n');
+            images = lines.map(line => {
+                const [url, title] = line.split(',');
+                return { url: url.trim(), title: title.trim() };
+            });
+            renderImages();
+		}
+
+        function renderImages() {
+            imageList.innerHTML = '';
+			imageText.value = '';
+            images.forEach((image, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('image-item');
+                listItem.draggable = true;
+                listItem.dataset.index = index;
+
+                listItem.innerHTML = `
+                    <img src="${image.url}" alt="${image.title}">
+                    <span>${image.title}</span>
+                    <span style="margin-left:5px;font-weight:bold">#${index + 1}</span>
+                `;
+
+                imageList.appendChild(listItem);
+                imageText.value += `${index + 1}. ${image.title}\n`;
+            });
+        }
+
+        let dragIndex = null;
+
+        imageList.addEventListener('dragstart', (event) => {
+            dragIndex = parseInt(event.target.dataset.index);
+        });
+
+        imageList.addEventListener('dragover', (event) => {
+            event.preventDefault();
+        });
+
+        imageList.addEventListener('drop', (event) => {
+            const dropIndex = parseInt(event.target.dataset.index);
+            if (!isNaN(dropIndex)) {
+                const draggedImage = images[dragIndex];
+                images.splice(dragIndex, 1);
+                images.splice(dropIndex, 0, draggedImage);
+                renderImages();
+            }
+        });
+    </script>
+</body>
+</html>
