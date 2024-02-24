@@ -29,6 +29,9 @@
             height: auto;
             margin-right: 10px;
         }
+        .image-container {
+            pointer-events: none;
+        }
         textarea, input {
             background-color: #EDEBDF;
         }
@@ -41,38 +44,43 @@
     <button onclick="loadImages()">Generate Image List</button><br><br>
     <p>Drag and drop images to reorder them. An ordered list will be outputted at the bottom of the page.</p>
     <ul id="image-list"></ul>
-	<textarea id="image-text" rows="6" style="width: 100%;"></textarea>
+    <textarea id="image-text" rows="6" style="width: 100%;"></textarea>
 
     <script>
         const imageList = document.getElementById('image-list');
         const imageInput = document.getElementById('image-input');
-		const imageText = document.getElementById('image-text');
+        const imageText = document.getElementById('image-text');
         let images = [];
-		
-		function loadImages() {
-			const inputText = imageInput.value;
+
+        function loadImages() {
+            const inputText = imageInput.value;
             const lines = inputText.split('\n');
             images = lines.map(line => {
                 const [url, title] = line.split(',');
                 return { url: url.trim(), title: title.trim() };
             });
             renderImages();
-		}
+        }
 
         function renderImages() {
             imageList.innerHTML = '';
-			imageText.value = '';
+            imageText.value = '';
             images.forEach((image, index) => {
                 const listItem = document.createElement('li');
                 listItem.classList.add('image-item');
                 listItem.draggable = true;
                 listItem.dataset.index = index;
 
-                listItem.innerHTML = `
+                const imageContainer = document.createElement('div');
+                imageContainer.classList.add('image-container');
+
+                imageContainer.innerHTML = `
                     <img src="${image.url}" alt="${image.title}">
                     <span>${image.title}</span>
                     <span style="margin-left:5px;font-weight:bold">#${index + 1}</span>
                 `;
+
+                listItem.appendChild(imageContainer);
 
                 imageList.appendChild(listItem);
                 imageText.value += `${index + 1}. ${image.title}\n`;
@@ -82,7 +90,10 @@
         let dragIndex = null;
 
         imageList.addEventListener('dragstart', (event) => {
-            dragIndex = parseInt(event.target.dataset.index);
+            const target = event.target.closest('.image-item');
+            if (target) {
+                dragIndex = parseInt(target.dataset.index);
+            }
         });
 
         imageList.addEventListener('dragover', (event) => {
@@ -90,7 +101,7 @@
         });
 
         imageList.addEventListener('drop', (event) => {
-            const dropIndex = parseInt(event.target.dataset.index);
+            const dropIndex = parseInt(event.target.closest('.image-item').dataset.index);
             if (!isNaN(dropIndex)) {
                 const draggedImage = images[dragIndex];
                 images.splice(dragIndex, 1);
