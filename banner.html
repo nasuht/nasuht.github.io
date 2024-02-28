@@ -41,11 +41,13 @@
 <body>
     <h1>Banner Voting</h1>
     <p>Enter a list of image URLs and titles below (one per line), separated by a comma:</p>
-    <textarea id="image-input" rows="6" cols="50"></textarea><br>
+    <textarea id="image-input" rows="6" cols="50" placeholder="https://example.com/image.jpg,image title (12345)"></textarea><br>
     <button onclick="loadImages()">Generate Image List</button><br><br>
-    <p>Drag and drop images to reorder them. An ordered list will be outputted at the bottom of the page.</p>
-    <ul id="image-list"></ul>
-    <textarea id="image-text" rows="10" style="width: 100%;"></textarea>
+    <div id="output" style="display: none;">
+        <p>Drag and drop images to reorder them. An ordered list will be outputted at the bottom of the page.</p>
+        <ul id="image-list"></ul>
+        <textarea id="image-text" rows="10" style="width: 100%;"></textarea>
+    </div>
 
     <script>
         const imageList = document.getElementById('image-list');
@@ -61,6 +63,7 @@
                 return { url: url.trim(), title: title.trim() };
             });
             renderImages();
+            document.getElementById('output').style.display = 'block';
         }
 
         function renderImages() {
