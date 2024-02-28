@@ -30,6 +30,7 @@
             margin-right: 10px;
         }
         .image-container {
+            margin-left: 10px;
             pointer-events: none;
         }
         textarea, input {
@@ -73,18 +74,39 @@
 
                 const imageContainer = document.createElement('div');
                 imageContainer.classList.add('image-container');
-
                 imageContainer.innerHTML = `
                     <img src="${image.url}" alt="${image.title}">
                     <span>${image.title}</span>
                     <span style="margin-left:5px;font-weight:bold">#${index + 1}</span>
                 `;
 
+                const selectPosition = document.createElement('select');
+                selectPosition.classList.add('image-position');
+                selectPosition.addEventListener('change', () => changePosition(selectPosition));
+                for (let i = 1; i <= images.length; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    selectPosition.appendChild(option);
+                }
+                selectPosition.value = index + 1;
+
+                listItem.appendChild(selectPosition);
                 listItem.appendChild(imageContainer);
 
                 imageList.appendChild(listItem);
                 imageText.value += `${index + 1}. ${image.title}\n`;
             });
+        }
+
+        function changePosition(select) {
+            const index = parseInt(select.parentNode.dataset.index);
+            const newPosition = parseInt(select.value) - 1;
+            if (index !== newPosition) {
+                const movedImage = images.splice(index, 1)[0];
+                images.splice(newPosition, 0, movedImage);
+                renderImages();
+            }
         }
 
         let dragIndex = null;
